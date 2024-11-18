@@ -1,8 +1,8 @@
 import { pool } from '../db.js';
 
-export const getRoles =  async (req, res) => {
+export const getLibros =  async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM Roles');
+        const [rows] = await pool.query('SELECT * FROM Libros');
         res.json(rows);
     }catch(error){        
         return res.status(500).json({
@@ -12,13 +12,13 @@ export const getRoles =  async (req, res) => {
     
 };
 
-export const getRolesId =  async (req, res) => {
+export const getLibrosId =  async (req, res) => {
     try{
-        const idRol = req.params.id;
-        const [rows] = await pool.query('SELECT * FROM Roles where id_rol = ?', [idRol]);
+        const idLibro = req.params.id;
+        const [rows] = await pool.query('SELECT * FROM Libro where id_libro = ?', [idLibro]);
 
         if(rows.length <= 0) return res.status(404).json({
-            message: "No se encontro el rol"
+            message: "No se encontro el libro"
         });
 
         res.json(rows[0]);
@@ -30,15 +30,16 @@ export const getRolesId =  async (req, res) => {
     }
 };
 
-export const createRoles = async (req, res) => {
+export const createLibros = async (req, res) => {
     try{
-        const {nombre_rol } = req.body;
-        const [rows] =  await pool.query('INSERT INTO Roles (nombre_rol) VALUES (?)', [nombre_rol]);
+        const {titulo, autor, disponibles } = req.body;
+        const [rows] =  await pool.query('INSERT INTO Libros (titulo, autor, disponibles) VALUES (?,?,?)', [titulo, autor, disponibles]);
         res.send({
-            nombre_rol,
+            titulo,
             id: rows.insertId
         });
     }catch(error){
+        console.log(error);
         return res.status(500).json({
             message: 'Algo salio mal'
         });
@@ -50,12 +51,12 @@ export const updateRoles =  async (req, res) => {
         const {id} = req.params;
         const {nombre_rol}= req.body;
 
-        const [result] = await pool.query('UPDATE Roles SET nombre_rol = IFNULL(?, nombre_rol) WHERE id_rol = ?', [ nombre_rol, id]);
+        const [result] = await pool.query('UPDATE roles SET nombre_rol = IFNULL(?, nombre_rol) WHERE id_rol = ?', [ nombre_rol, id]);
         if(result.affectedRows === 0) return res.status(404).json({
             message: "No se encontro el rol"
         });
 
-        const [rows] = await pool.query('SELECT * FROM Roles where id_rol = ?', [id]);
+        const [rows] = await pool.query('SELECT * FROM roles where id_rol = ?', [id]);
 
         res.json(rows[0]);
     }catch(error){
@@ -67,7 +68,7 @@ export const updateRoles =  async (req, res) => {
 
 export const deleteRoles =  async (req, res) => {
     try{
-        const [result] = await pool.query('DELETE FROM Roles where id_rol = ?', [ req.params.id]);
+        const [result] = await pool.query('DELETE FROM roles where id_rol = ?', [ req.params.id]);
         if(result.affectedRows <= 0) return res.status(404).json({
             message: "No se encontro el rol"
         });

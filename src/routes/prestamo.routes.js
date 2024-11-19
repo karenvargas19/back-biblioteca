@@ -1,10 +1,11 @@
 import {Router} from 'express';
-import { createPrestamo, getPrestamosIdLibro} from '../controllers/prestamo.controller.js';
+import { createPrestamo, getPrestamosIdLibro, createDevolucion} from '../controllers/prestamo.controller.js';
 
 const router = Router();
 
-router.get('/prestamo/:idlibro', getPrestamosIdLibro);
+router.get('/prestamo/:id', getPrestamosIdLibro);
 router.post('/prestamo', createPrestamo);
+router.post('/devolucion', createDevolucion);
 
 
 export default router;

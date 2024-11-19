@@ -2,9 +2,14 @@ import { pool } from '../db.js';
 
 export const getLibros =  async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM Libros');
+        const [rows] = await pool.query(
+            `SELECT l.id_libro, l.titulo, l.autor, l.disponibles, COUNT(p.id_prestamo) AS prestamos_activos
+            FROM Libros l 
+            LEFT JOIN Prestamos p ON l.id_libro = p.id_libro AND p.devuelto = false
+            GROUP BY l.id_libro, l.titulo, l.autor;`);
         res.json(rows);
-    }catch(error){        
+    }catch(error){      
+        console.log(error);  
         return res.status(500).json({
             message: 'Algo salio mal'
         });
@@ -40,41 +45,6 @@ export const createLibros = async (req, res) => {
         });
     }catch(error){
         console.log(error);
-        return res.status(500).json({
-            message: 'Algo salio mal'
-        });
-    }
-};
-
-export const updateRoles =  async (req, res) => {
-    try{
-        const {id} = req.params;
-        const {nombre_rol}= req.body;
-
-        const [result] = await pool.query('UPDATE roles SET nombre_rol = IFNULL(?, nombre_rol) WHERE id_rol = ?', [ nombre_rol, id]);
-        if(result.affectedRows === 0) return res.status(404).json({
-            message: "No se encontro el rol"
-        });
-
-        const [rows] = await pool.query('SELECT * FROM roles where id_rol = ?', [id]);
-
-        res.json(rows[0]);
-    }catch(error){
-        return res.status(500).json({
-            message: 'Algo salio mal'
-        });
-    }
-};
-
-export const deleteRoles =  async (req, res) => {
-    try{
-        const [result] = await pool.query('DELETE FROM roles where id_rol = ?', [ req.params.id]);
-        if(result.affectedRows <= 0) return res.status(404).json({
-            message: "No se encontro el rol"
-        });
-
-        res.sendStatus(204);
-    }catch(error){
         return res.status(500).json({
             message: 'Algo salio mal'
         });
